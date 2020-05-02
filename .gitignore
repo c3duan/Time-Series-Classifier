@@ -4,3 +4,5 @@
 __pycache__/
 Aniyama_groundtruth/
 runs/
+images/
+*.zip

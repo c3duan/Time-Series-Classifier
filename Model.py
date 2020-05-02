@@ -13,6 +13,12 @@ class RNN(nn.Module):
         self.dropout = nn.Dropout(dropout)
         self.fc = nn.Linear(hidden_dim, output_dim)
 
+    def encode(self, data):
+        data = data.T.view(*data.T.shape, 1)
+        packed_output, (hidden, cell) = self.lstm(data)
+        hidden = hidden[-1, :, :].squeeze(0)
+        return hidden
+
     def forward(self, data):
         data = data.T.view(*data.T.shape ,1)
         packed_output, (hidden, cell) = self.lstm(data)
@@ -34,7 +40,7 @@ class CNN(nn.Module):
             nn.MaxPool1d(kernel_size=2, stride=2) # W_out = 2 * 5
         )
         self.fc = nn.Sequential(
-            nn.Linear(10, 64),  # The choice of 485 is completely random
+            nn.Linear(10, 64),  # The choice of 64 is completely random
             nn.ReLU(inplace=True),
             nn.Dropout(),
             nn.Linear(64, 1)
