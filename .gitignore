@@ -6,3 +6,4 @@ Aniyama_groundtruth/
 runs/
 images/
 *.zip
+*.csv
