@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 
 
@@ -24,7 +23,6 @@ class RNN(nn.Module):
         packed_output, (hidden, cell) = self.lstm(data)
         hidden = self.dropout(hidden[-1,:,:].squeeze(0))
         output = self.fc(hidden)
-
         return output
 
 
@@ -57,9 +55,38 @@ class CNN(nn.Module):
 
         return num_features
 
+    def encode(self, input):
+        batch_size, input_dim = input.shape
+        input = input.view(batch_size, 1, input_dim)
+        x = self.main(input)
+        x = x.view(batch_size, self.num_flat_features(x))
+        return x
+
     def forward(self, input):
         batch_size, input_dim = input.shape
         input = input.view(batch_size, 1, input_dim)
         x = self.main(input)
         x = x.view(batch_size, self.num_flat_features(x))
         return self.fc(x)
+
+
+class RNNSiameseNet(nn.module):
+    def __init__(self, encode_dim, hidden_dim, output_dim, num_layers, dropout):
+        super(RNNSiameseNet, self).__init__()
+        self.rnn = RNN(encode_dim, hidden_dim, output_dim, num_layers, dropout)
+
+    def forward(self, item1, item2):
+        output1 = self.rnn.forward(item1)
+        output2 = self.rnn.forward(item2)
+        return output1, output2
+
+
+class CNNSiameseNet(nn.Module):
+    def __init__(self):
+        super(CNNSiameseNet, self).__init__()
+        self.cnn = CNN()
+
+    def forward(self, item1, item2):
+        output1 = self.cnn.forward(item1)
+        output2 = self.cnn.forward(item2)
+        return output1, output2
